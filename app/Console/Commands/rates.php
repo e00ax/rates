@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Services\CsvParseService;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class rates extends Command
 {
@@ -55,13 +56,19 @@ class rates extends Command
             Log::warning('Start: ' . $start->toISOString());
 
             // Parse service & rate CSV file
+            echo "Parsing services & rates...\n";
             $parse = $this->csvParseService->parse();
+            echo "done...\n\n";
 
             // Transform CSV to array
+            echo "Transforming CSV...\n";
             $transform = $this->csvParseService->transform($parse);
+            echo "done...\n\n";
 
             // Write transformed to db
+            echo "Write transformed to db...\n";
             $this->csvParseService->write($transform);
+            echo "done...\n\n";
 
             $end = Carbon::now();
             $duration = $end->diffinSeconds($start);

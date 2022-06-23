@@ -64,18 +64,13 @@ class CsvParseService
                 $tRate = trim($rate);
                 $service = $line[0];
 
-                if ($tRate == ('ok' || 'okC')) {
+                if ($tRate == 'ok' || $tRate == 'okC') {
                     $out[$service][] = $csvArray['header'][0][$i];
                 }
 
                 $i++;
             }
         }
-
-        // echo "<pre>";
-        // print_r($out);
-        // echo "</pre>";
-        // echo count($out);
 
         return $out;
     }
