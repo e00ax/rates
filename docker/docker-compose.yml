@@ -1,0 +1,114 @@
+version: "2.2"
+
+networks:
+  laravel:
+    name: laravel
+
+services:
+  #============================================================================
+  # Webserver
+  #============================================================================
+  nginx:
+    build:
+      context: nginx
+    container_name: nginx
+    depends_on:
+      - php
+      - mysql
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - www-data:/var/www/html
+      - php-fpm:/var/run/php-fpm
+    networks:
+      - laravel
+
+  #============================================================================
+  # PHP
+  #============================================================================
+  php:
+    build:
+      context: rates_php
+    container_name: php
+    user: "1000:1000"
+    volumes:
+      - www-data:/var/www/html
+      - php-fpm:/var/run/php-fpm
+    working_dir: /var/www/html/rates
+    networks:
+      - laravel
+
+  #============================================================================
+  # DB
+  #============================================================================
+  mysql:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: mysql
+    user: "1000:1000"
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "next"
+      MYSQL_PASSWORD: "dbpass"
+      MYSQL_ROOT_PASSWORD: "dbpass"
+    networks:
+      - laravel
+
+  #============================================================================
+  # NPM
+  #============================================================================
+  npm:
+    image: node:16-alpine3.15
+    container_name: npm
+    user: "1000:1000"
+    volumes:
+      - www-data:/var/www/html
+    working_dir: /var/www/html/rates
+    entrypoint: ["npm"]
+    networks:
+      - laravel
+
+#============================================================================
+# Mailhog
+#============================================================================
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    user: "1000:1000"
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - laravel
+
+#============================================================================
+# Volumes
+#============================================================================
+volumes:
+    www-data:
+      # external: true
+     driver: local
+     driver_opts:
+       o: bind
+       type: none
+       device: /var/www/websites
+
+    php-fpm:
+     # external: true
+     driver: local
+     driver_opts:
+       o: bind
+       type: none
+       device: /data/php-fpm
+
+    mysql-data:
+      # external: true
+#      driver: local
+#      driver_opts:
+#        o: bind
+#        type: none
+#        device: /data/php-fpm
