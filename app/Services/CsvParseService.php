@@ -7,6 +7,11 @@ use App\Models\Rate;
 
 class CsvParseService
 {
+    /**
+     * Memory limit
+     *
+     * @var string
+     */
     protected string $memoryLimit = '2G';
 
     /**
